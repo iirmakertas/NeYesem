@@ -1,22 +1,64 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { FiMail, FiLock, FiUserPlus, FiAlertCircle, FiCheckCircle } from 'react-icons/fi';
+import { FiMail, FiLock, FiUserPlus, FiAlertCircle, FiCheckCircle, FiUser } from 'react-icons/fi';
 
 export default function Register() {
     const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
+    const [usernameStatus, setUsernameStatus] = useState({ checking: false, available: null, message: '' });
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
     const [loading, setLoading] = useState(false);
-    const { signUp } = useAuth();
+    const { signUp, checkUsernameAvailable } = useAuth();
+
+    // Debounced username availability check
+    useEffect(() => {
+        if (!username || username.length < 3) {
+            setUsernameStatus({ checking: false, available: null, message: '' });
+            return;
+        }
+
+        // Validate username format
+        const usernameRegex = /^[a-zA-Z0-9_çğıöşüÇĞİÖŞÜ]+$/;
+        if (!usernameRegex.test(username)) {
+            setUsernameStatus({
+                checking: false,
+                available: false,
+                message: 'Kullanıcı adı sadece harf, rakam ve alt çizgi içerebilir.'
+            });
+            return;
+        }
+
+        setUsernameStatus({ checking: true, available: null, message: 'Kullanıcı adı kontrol ediliyor...' });
+
+        const timer = setTimeout(async () => {
+            try {
+                const isAvailable = await checkUsernameAvailable(username);
+                setUsernameStatus({
+                    checking: false,
+                    available: isAvailable,
+                    message: isAvailable 
+                        ? 'Bu kullanıcı adı müsait! ✓'
+                        : 'Bu kullanıcı adı zaten alınmış.'
+                });
+            } catch (err) {
+                console.error("Kullanıcı adı kontrol hatası:", err);
+                setUsernameStatus({ checking: false, available: null, message: 'Kullanıcı adı kontrolü başarısız oldu.' });
+            }
+        }, 600);
+
+        return () => clearTimeout(timer);
+    }, [username, checkUsernameAvailable]);
 
     const getErrorMessage = (code) => {
         const messages = {
             'auth/email-already-in-use': 'Bu e-posta zaten kullanılıyor.',
             'auth/invalid-email': 'Geçersiz e-posta adresi.',
             'auth/weak-password': 'Şifre en az 6 karakter olmalıdır.',
+            'auth/username-taken': 'Bu kullanıcı adı zaten kullanılıyor.',
         };
         return messages[code] || 'Kayıt olurken bir hata oluştu.';
     };
@@ -25,8 +67,18 @@ export default function Register() {
         e.preventDefault();
         setError('');
 
+        if (!username || username.length < 3) {
+            setError('Kullanıcı adı en az 3 karakter olmalıdır.');
+            return;
+        }
+
+        if (usernameStatus.available === false) {
+            setError('Bu kullanıcı adı zaten alınmış. Lütfen başka bir tane seçin.');
+            return;
+        }
+
         if (password !== confirmPassword) {
-            setError('Şifreler eşleşmiyor.');
+            setError('Şifreler uyuşmuyor.');
             return;
         }
 
@@ -37,9 +89,10 @@ export default function Register() {
 
         setLoading(true);
         try {
-            await signUp(email, password);
+            await signUp(email, password, username);
             setSuccess(true);
         } catch (err) {
+            console.error("Kayıt olma hatası:", err);
             setError(getErrorMessage(err.code));
         }
         setLoading(false);
@@ -77,8 +130,7 @@ export default function Register() {
                             className="text-sm mb-6"
                             style={{ color: 'var(--text-secondary)' }}
                         >
-                            <strong>{email}</strong> adresine bir doğrulama e-postası gönderdik.
-                            Lütfen gelen kutunuzu (ve spam klasörünü) kontrol edin ve hesabınızı doğrulayın.
+                            <><strong>{email}</strong> adresine bir doğrulama e-postası gönderdik. Lütfen gelen kutunuzu (ve spam klasörünü) kontrol edin ve hesabınızı doğrulayın.</>
                         </p>
                         <Link
                             to="/login"
@@ -144,6 +196,82 @@ export default function Register() {
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-4">
+                        {/* Username Field */}
+                        <div>
+                            <label
+                                className="block text-sm font-medium mb-1.5"
+                                style={{ color: 'var(--text-secondary)' }}
+                            >
+                                Kullanıcı Adı
+                            </label>
+                            <div className="relative">
+                                <FiUser
+                                    className="absolute left-3 top-1/2 -translate-y-1/2"
+                                    style={{ color: 'var(--text-tertiary)' }}
+                                    size={18}
+                                />
+                                <input
+                                    type="text"
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    placeholder="sefAhmet"
+                                    required
+                                    minLength={3}
+                                    maxLength={20}
+                                    className="w-full pl-10 pr-10 py-3 rounded-xl border outline-none text-sm transition-all duration-200"
+                                    style={{
+                                        backgroundColor: 'var(--bg-input)',
+                                        borderColor: usernameStatus.available === true ? '#22c55e'
+                                            : usernameStatus.available === false ? 'var(--color-primary)'
+                                                : 'var(--border-color)',
+                                        color: 'var(--text-primary)',
+                                    }}
+                                    onFocus={(e) => {
+                                        if (usernameStatus.available === null) {
+                                            e.target.style.borderColor = 'var(--color-primary)';
+                                        }
+                                    }}
+                                    onBlur={(e) => {
+                                        if (usernameStatus.available === null) {
+                                            e.target.style.borderColor = 'var(--border-color)';
+                                        }
+                                    }}
+                                />
+                                {/* Status icon */}
+                                {username.length >= 3 && (
+                                    <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                        {usernameStatus.checking ? (
+                                            <div
+                                                className="w-4 h-4 border-2 rounded-full animate-spin"
+                                                style={{
+                                                    borderColor: 'var(--border-color)',
+                                                    borderTopColor: 'var(--color-primary)'
+                                                }}
+                                            />
+                                        ) : usernameStatus.available === true ? (
+                                            <FiCheckCircle size={16} style={{ color: '#22c55e' }} />
+                                        ) : usernameStatus.available === false ? (
+                                            <FiAlertCircle size={16} style={{ color: 'var(--color-primary)' }} />
+                                        ) : null}
+                                    </div>
+                                )}
+                            </div>
+                            {/* Username status message */}
+                            {usernameStatus.message && (
+                                <p
+                                    className="text-xs mt-1 animate-fade-in"
+                                    style={{
+                                        color: usernameStatus.available === true ? '#22c55e'
+                                            : usernameStatus.available === false ? 'var(--color-primary)'
+                                                : 'var(--text-tertiary)'
+                                    }}
+                                >
+                                    {usernameStatus.message}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Email Field */}
                         <div>
                             <label
                                 className="block text-sm font-medium mb-1.5"
@@ -175,6 +303,7 @@ export default function Register() {
                             </div>
                         </div>
 
+                        {/* Password Field */}
                         <div>
                             <label
                                 className="block text-sm font-medium mb-1.5"
@@ -207,6 +336,7 @@ export default function Register() {
                             </div>
                         </div>
 
+                        {/* Confirm Password */}
                         <div>
                             <label
                                 className="block text-sm font-medium mb-1.5"
@@ -241,7 +371,7 @@ export default function Register() {
 
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={loading || usernameStatus.checking || usernameStatus.available === false}
                             className="touch-target w-full py-3.5 rounded-xl text-sm font-semibold text-white transition-all duration-200 cursor-pointer border-0 flex items-center justify-center gap-2"
                             style={{
                                 backgroundColor: loading ? 'var(--text-tertiary)' : 'var(--color-primary)',

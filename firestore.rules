@@ -1,0 +1,38 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users collection and their private recipes
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      match /myRecipes/{recipeId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      match /favorites/{favId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+
+    // Comments collection
+    match /comments/{commentId} {
+      // Everyone can read, only authenticated users can write
+      allow read: if true;
+      allow create: if request.auth != null 
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.text is string
+        && (!('rating' in request.resource.data.keys()) || (request.resource.data.rating >= 1 && request.resource.data.rating <= 5));
+      // Only the author can delete or update their comment
+      allow update, delete: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+
+    // Usernames collection
+    match /usernames/{username} {
+      // Anyone can check if a username exists
+      allow read: if true;
+      // Only authenticated users can reserve a username for their own UID
+      allow create: if request.auth != null && request.resource.data.uid == request.auth.uid;
+    }
+  }
+}

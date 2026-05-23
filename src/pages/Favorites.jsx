@@ -52,19 +52,23 @@ export default function Favorites() {
                 {/* Favorites List */}
                 {!loading && favorites.length > 0 && (
                     <div className="space-y-3">
-                        {favorites.map((fav, index) => (
-                            <RecipeCard
-                                key={fav.id}
-                                meal={{
-                                    id: fav.id,
-                                    name: fav.name,
-                                    category: fav.category,
-                                    ingredients: fav.ingredients || [],
-                                    recipe: fav.recipe || '',
-                                }}
-                                index={index}
-                            />
-                        ))}
+                        {favorites.map((fav, index) => {
+                            const isPersonal = fav.isPersonal || isNaN(Number(fav.id));
+                            return (
+                                <RecipeCard
+                                    key={fav.id}
+                                    meal={{
+                                        id: fav.id,
+                                        name: fav.name,
+                                        category: fav.category,
+                                        ingredients: fav.ingredients || [],
+                                        recipe: fav.recipe || '',
+                                        isPersonal,
+                                    }}
+                                    index={index}
+                                />
+                            );
+                        })}
                     </div>
                 )}
 

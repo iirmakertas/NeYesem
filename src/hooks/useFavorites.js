@@ -17,14 +17,20 @@ export function useFavorites() {
 
         const favRef = collection(db, 'users', user.uid, 'favorites');
         const unsubscribe = onSnapshot(favRef, (snapshot) => {
-            const favs = snapshot.docs.map(doc => ({
-                id: doc.id,
-                ...doc.data()
-            }));
-            setFavorites(favs);
-            setLoading(false);
+            try {
+                const favs = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                setFavorites(favs);
+                setLoading(false);
+            } catch (err) {
+                console.error('Error parsing favorites:', err);
+                setLoading(false);
+            }
         }, (error) => {
             console.error('Favorites sync error:', error);
+            // Don't clear favorites on sync error to avoid flickering/crashes
             setLoading(false);
         });
 
@@ -46,6 +52,7 @@ export function useFavorites() {
                     category: meal.category,
                     ingredients: meal.ingredients,
                     recipe: meal.recipe,
+                    isPersonal: !!meal.isPersonal,
                     addedAt: new Date().toISOString()
                 });
             }

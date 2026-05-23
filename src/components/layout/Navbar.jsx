@@ -2,15 +2,14 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import ThemeToggle from './ThemeToggle';
-import { FiHome, FiLogOut, FiMenu, FiX } from 'react-icons/fi';
+import { FiHome, FiLogOut } from 'react-icons/fi';
 import { GiRollingDices } from 'react-icons/gi';
-import { MdFavorite, MdKitchen } from 'react-icons/md';
+import { MdFavorite, MdKitchen, MdMenuBook } from 'react-icons/md';
 
 export default function Navbar() {
-    const { user, logout } = useAuth();
+    const { user, userData, logout } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     const handleLogout = async () => {
         try {
@@ -25,12 +24,15 @@ export default function Navbar() {
         { path: '/dashboard', label: 'Ana Menü', icon: <FiHome size={20} /> },
         { path: '/zar-at', label: 'Zar At', icon: <GiRollingDices size={20} /> },
         { path: '/ne-var', label: 'Ne Var?', icon: <MdKitchen size={20} /> },
+        { path: '/tarif-defterim', label: 'Defterim', icon: <MdMenuBook size={20} /> },
         { path: '/favoriler', label: 'Favoriler', icon: <MdFavorite size={20} /> },
     ];
 
     const isActive = (path) => location.pathname === path;
 
-    if (!user) return null;
+    if (!user || !user.emailVerified) return null;
+
+    const displayName = userData?.displayName || user?.email?.split('@')[0] || 'Şef';
 
     return (
         <>
@@ -71,6 +73,23 @@ export default function Navbar() {
                     </div>
 
                     <div className="flex items-center gap-3">
+                        {/* Profile Link */}
+                        <Link
+                            to="/profile"
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-lg no-underline transition-all duration-200 hover:opacity-80"
+                            style={{
+                                backgroundColor: 'var(--bg-chip)',
+                                color: 'var(--text-chip)',
+                            }}
+                        >
+                            <span className="text-base">
+                                {userData?.photoURL || '👤'}
+                            </span>
+                            <span className="text-xs font-medium hidden sm:inline">
+                                {displayName}
+                            </span>
+                        </Link>
+                        
                         <ThemeToggle />
                         <button
                             onClick={handleLogout}
@@ -117,6 +136,24 @@ export default function Navbar() {
                             <span className="text-[10px] font-medium">{item.label}</span>
                         </Link>
                     ))}
+                    <Link
+                        to="/profile"
+                        className="touch-target tap-highlight-none flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl no-underline transition-all duration-200"
+                        style={{
+                            color: isActive('/profile') ? 'var(--color-primary)' : 'var(--text-tertiary)',
+                        }}
+                    >
+                        <div
+                            className="flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200"
+                            style={{
+                                backgroundColor: isActive('/profile') ? 'var(--color-primary-50)' : 'transparent',
+                                transform: isActive('/profile') ? 'scale(1.1)' : 'scale(1)',
+                            }}
+                        >
+                            <span className="text-base">{userData?.photoURL || '👤'}</span>
+                        </div>
+                        <span className="text-[10px] font-medium">Profil</span>
+                    </Link>
                     <div className="flex flex-col items-center gap-0.5">
                         <ThemeToggle />
                     </div>

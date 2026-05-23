@@ -1,15 +1,17 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { GiRollingDices } from 'react-icons/gi';
-import { MdKitchen, MdFavorite } from 'react-icons/md';
+import { MdKitchen, MdFavorite, MdMenuBook } from 'react-icons/md';
 
 export default function Dashboard() {
-    const { user } = useAuth();
+    const { user, userData } = useAuth();
+
+    const displayName = userData?.displayName || user?.email?.split('@')[0] || 'Şef';
 
     const modules = [
         {
             title: 'Zar At',
-            description: 'Rastgele bir tarif bul! Kategorini seç ve zarı at.',
+            description: 'Ne yiyeceğine karar veremiyor musun? Hemen bir zar at ve sana özel seçtiğimiz tarifi keşfet!',
             icon: <GiRollingDices size={40} />,
             path: '/zar-at',
             gradient: 'linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%)',
@@ -17,15 +19,23 @@ export default function Dashboard() {
         },
         {
             title: 'Ne Var?',
-            description: 'Elindeki malzemeleri seç, sana uygun tarifleri bul!',
+            description: 'Dolabındaki malzemeleri seç, elindekilerle yapabileceğin en lezzetli yemek tariflerini anında bul!',
             icon: <MdKitchen size={40} />,
             path: '/ne-var',
             gradient: 'linear-gradient(135deg, #f97316 0%, #fb923c 50%, #fdba74 100%)',
             emoji: '🥕',
         },
         {
+            title: 'Tarif Defterim',
+            description: 'Kendi tariflerini ekle, düzenle ve dilediğin zaman kişisel dijital defterine göz at!',
+            icon: <MdMenuBook size={40} />,
+            path: '/tarif-defterim',
+            gradient: 'linear-gradient(135deg, #8b5cf6 0%, #a78bfa 50%, #c4b5fd 100%)',
+            emoji: '📖',
+        },
+        {
             title: 'Favoriler',
-            description: 'Kaydettiğin tariflere göz at và yeniden keşfet.',
+            description: 'Beğendiğin ve kaydettiğin tüm tariflere buradan hızlıca ulaş, favorilerini incele!',
             icon: <MdFavorite size={40} />,
             path: '/favoriler',
             gradient: 'linear-gradient(135deg, #e11d48 0%, #f43f5e 50%, #fb7185 100%)',
@@ -46,12 +56,10 @@ export default function Dashboard() {
                         Hoş Geldin!
                     </h1>
                     <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                        {user?.email && (
-                            <span className="font-medium" style={{ color: 'var(--color-primary)' }}>
-                                {user.email}
-                            </span>
-                        )}
-                        {' — '}Bugün ne yemek istersin?
+                        <span className="font-medium" style={{ color: 'var(--color-primary)' }}>
+                             {displayName}
+                        </span>
+                        {' — '}Bugün ne pişirmek istersin?
                     </p>
                 </div>
 
@@ -112,7 +120,7 @@ export default function Dashboard() {
                     }}
                 >
                     <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>
-                        🍽️ 12 kategori • 600 tarif • Sınırsız lezzet
+                        🍽️ 12 kategori • Sınırsız lezzet
                     </p>
                 </div>
             </div>

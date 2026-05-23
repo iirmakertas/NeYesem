@@ -1,10 +1,16 @@
 import { useState } from 'react';
 import { FiHeart, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { useFavorites } from '../../hooks/useFavorites';
+import { useComments } from '../../hooks/useComments';
+import StarRating from './StarRating';
+import CommentSection from './CommentSection';
+import { getCategoryDisplayName } from '../../pages/ZarAt';
 
 export default function RecipeCard({ meal, index = 0 }) {
     const [expanded, setExpanded] = useState(false);
     const { toggleFavorite, isFavorite } = useFavorites();
+    if (!meal) return null;
+    const { averageRating, comments, loading } = useComments(meal.isPersonal ? null : meal.id);
     const [animateHeart, setAnimateHeart] = useState(false);
     const favorited = isFavorite(meal.id);
 
@@ -37,13 +43,30 @@ export default function RecipeCard({ meal, index = 0 }) {
             <div className="p-4 pb-2">
                 <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
                             <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{
                                 backgroundColor: 'var(--bg-chip)',
                                 color: 'var(--text-chip)',
                             }}>
-                                {categoryEmojis[meal.category] || '🍴'} {meal.category}
+                                {categoryEmojis[meal?.category] || '🍴'} {getCategoryDisplayName(meal?.category)}
                             </span>
+                            {meal.isPersonal && (
+                                <span className="text-[10px] px-2.5 py-0.5 rounded-full font-bold" style={{
+                                    backgroundColor: '#8b5cf6',
+                                    color: 'white',
+                                }}>
+                                    Kişisel Tarif
+                                </span>
+                            )}
+                            {/* Average Rating Badge */}
+                            {!meal.isPersonal && averageRating > 0 && (
+                                <div className="flex items-center gap-1">
+                                    <StarRating value={averageRating} readOnly size={12} />
+                                    <span className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>
+                                        ({comments?.length || 0})
+                                    </span>
+                                </div>
+                            )}
                         </div>
                         <h3
                             className="text-base font-semibold leading-tight"
@@ -60,7 +83,7 @@ export default function RecipeCard({ meal, index = 0 }) {
                             backgroundColor: favorited ? 'var(--color-primary)' : 'var(--bg-chip)',
                             color: favorited ? 'white' : 'var(--color-primary)',
                         }}
-                        aria-label={favorited ? 'Favorilerden kaldır' : 'Favorilere ekle'}
+                        aria-label={favorited ? "Favorilerden Çıkar" : "Favoriye Ekle"}
                     >
                         <FiHeart
                             size={18}
@@ -69,8 +92,6 @@ export default function RecipeCard({ meal, index = 0 }) {
                     </button>
                 </div>
             </div>
-
-
 
             {/* Expand/Collapse */}
             <button
@@ -83,13 +104,13 @@ export default function RecipeCard({ meal, index = 0 }) {
                 }}
             >
                 {expanded ? (
-                    <>Tarifleri Gizle <FiChevronUp size={16} /></>
+                    <>Tarifi Gizle <FiChevronUp size={16} /></>
                 ) : (
-                    <>Tarifi Gör <FiChevronDown size={16} /></>
+                    <>Tarifi Göster <FiChevronDown size={16} /></>
                 )}
             </button>
 
-            {/* Recipe */}
+            {/* Recipe + Comments */}
             {expanded && (
                 <div
                     className="px-4 pb-4 animate-slide-up"
@@ -103,7 +124,7 @@ export default function RecipeCard({ meal, index = 0 }) {
                             Malzemeler
                         </h4>
                         <ul className="space-y-1 mb-4">
-                            {meal.ingredients.map((ing, i) => (
+                            {meal?.ingredients?.map((ing, i) => (
                                 <li
                                     key={i}
                                     className="text-sm flex items-center gap-2"
@@ -119,14 +140,24 @@ export default function RecipeCard({ meal, index = 0 }) {
                             className="text-xs font-semibold uppercase tracking-wider mb-2"
                             style={{ color: 'var(--text-tertiary)' }}
                         >
-                            Yapılışı
+                            Hazırlanışı
                         </h4>
                         <p
                             className="text-sm leading-relaxed"
                             style={{ color: 'var(--text-secondary)' }}
                         >
-                            {meal.recipe}
+                            {meal?.recipe}
                         </p>
+
+                        {/* Comment Section */}
+                        {!meal.isPersonal && (
+                            <CommentSection 
+                                mealId={meal.id} 
+                                mealName={meal.name} 
+                                initialComments={comments}
+                                initialLoading={loading}
+                            />
+                        )}
                     </div>
                 </div>
             )}
