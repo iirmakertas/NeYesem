@@ -4,7 +4,7 @@ import { FiCamera, FiX, FiSettings, FiCheck, FiRefreshCw, FiAlertTriangle, FiInf
 export default function CameraScanner({ show, onClose, onScanSuccess, availableIngredients }) {
     const [apiKey, setApiKey] = useState(() => localStorage.getItem('gemini_api_key') || '');
     const [tempKey, setTempKey] = useState('');
-    const [showSettings, setShowSettings] = useState(!localStorage.getItem('gemini_api_key'));
+    const [showSettings, setShowSettings] = useState(false);
     
     const [stream, setStream] = useState(null);
     const [cameraActive, setCameraActive] = useState(false);
@@ -22,15 +22,13 @@ export default function CameraScanner({ show, onClose, onScanSuccess, availableI
             const storedKey = localStorage.getItem('gemini_api_key') || '';
             setApiKey(storedKey);
             setTempKey(storedKey);
-            setShowSettings(!storedKey);
+            setShowSettings(false);
             
             setImage(null);
             setDetectedItems([]);
             setError('');
 
-            if (storedKey) {
-                startCamera();
-            }
+            startCamera();
         } else {
             stopCamera();
         }
@@ -80,7 +78,12 @@ export default function CameraScanner({ show, onClose, onScanSuccess, availableI
         setApiKey(trimmedKey);
         setShowSettings(false);
         setError('');
-        startCamera();
+        if (image) {
+            const base64Image = image.split(',')[1];
+            scanImage(base64Image);
+        } else {
+            startCamera();
+        }
     };
 
     const removeApiKey = () => {
@@ -108,6 +111,12 @@ export default function CameraScanner({ show, onClose, onScanSuccess, availableI
         
         setImage(dataUrl);
         stopCamera();
+        
+        if (!apiKey) {
+            setShowSettings(true);
+            setError("Görsel yakalandı! Tarama işlemini yapabilmek için lütfen geçerli bir Gemini API Anahtarı girin.");
+            return;
+        }
         
         await scanImage(base64Image);
     };
@@ -217,19 +226,25 @@ export default function CameraScanner({ show, onClose, onScanSuccess, availableI
                         </h3>
                     </div>
                     <div className="flex items-center gap-2">
-                        {apiKey && (
-                            <button
-                                onClick={() => setShowSettings(!showSettings)}
-                                className="p-2 rounded-xl transition-colors cursor-pointer border-0 flex items-center justify-center"
-                                style={{
-                                    backgroundColor: showSettings ? 'var(--bg-chip-active)' : 'var(--bg-chip)',
-                                    color: showSettings ? 'var(--text-chip-active)' : 'var(--color-primary)',
-                                }}
-                                title="Ayarlar"
-                            >
-                                <FiSettings size={16} />
-                            </button>
-                        )}
+                        <button
+                            onClick={() => {
+                                const nextState = !showSettings;
+                                setShowSettings(nextState);
+                                if (nextState) {
+                                    stopCamera();
+                                } else {
+                                    if (!image) startCamera();
+                                }
+                            }}
+                            className="p-2 rounded-xl transition-colors cursor-pointer border-0 flex items-center justify-center"
+                            style={{
+                                backgroundColor: showSettings ? 'var(--bg-chip-active)' : 'var(--bg-chip)',
+                                color: showSettings ? 'var(--text-chip-active)' : 'var(--color-primary)',
+                            }}
+                            title="Ayarlar"
+                        >
+                            <FiSettings size={16} />
+                        </button>
                         <button
                             onClick={onClose}
                             className="p-2 rounded-xl transition-colors cursor-pointer border-0 flex items-center justify-center"
