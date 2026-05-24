@@ -1,10 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { FiCamera, FiX, FiCheck, FiRefreshCw, FiAlertTriangle, FiInfo } from 'react-icons/fi';
-
-// Programmatic Gemini API Key access.
-// End-users will never see or configure this in the UI.
-// Geliştirici: Kendi Gemini API Anahtarınızı projenin kök dizinindeki .env dosyasına VITE_GEMINI_API_KEY=... şeklinde ekleyin.
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || "";
+import { functions } from '../../firebase/config';
+import { httpsCallable } from 'firebase/functions';
 
 export default function CameraScanner({ show, onClose, onScanSuccess, availableIngredients }) {
     const [stream, setStream] = useState(null);
@@ -80,11 +77,6 @@ export default function CameraScanner({ show, onClose, onScanSuccess, availableI
         setImage(dataUrl);
         stopCamera();
         
-        if (!GEMINI_API_KEY) {
-            setError("Sistem Hatası: Gemini API Anahtarı tanımlanmamış. Lütfen geliştirici olarak .env dosyasına VITE_GEMINI_API_KEY ekleyin.");
-            return;
-        }
-        
         await scanImage(base64Image);
     };
 
@@ -93,52 +85,15 @@ export default function CameraScanner({ show, onClose, onScanSuccess, availableI
         setError('');
         
         try {
-            const prompt = `Görseldeki yemek malzemelerini analiz et. Bu malzemeleri SADECE şu liste içindeki öğelerle eşleştirerek Türkçe olarak döndür: ${JSON.stringify(availableIngredients)}. Eşleşen malzemeleri SADECE düz bir JSON string dizisi şeklinde döndür (örn: ["Patlıcan", "Domates"]). Markdown formatı, kod blokları (\`\`\`json vb.) ya da açıklama ekleme, YALNIZCA geçerli bir JSON dizisi döndür. Eşleşen malzeme yoksa boş bir dizi [] döndür.`;
-
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [
-                        {
-                            parts: [
-                                { text: prompt },
-                                {
-                                    inlineData: {
-                                        mimeType: 'image/jpeg',
-                                        data: base64Image
-                                    }
-                                }
-                            ]
-                        }
-                    ],
-                    generationConfig: {
-                        responseMimeType: "application/json"
-                    }
-                })
+            const scanIngredientsFn = httpsCallable(functions, 'scanIngredients');
+            const result = await scanIngredientsFn({
+                image: base64Image,
+                availableIngredients
             });
 
-            if (!response.ok) {
-                const errData = await response.json().catch(() => ({}));
-                throw new Error(errData?.error?.message || `API Hatası: ${response.status}`);
-            }
-
-            const data = await response.json();
-            const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            const validItems = result.data?.items;
             
-            if (!textResponse) {
-                throw new Error("API'den boş yanıt döndü.");
-            }
-
-            let items = JSON.parse(textResponse.trim());
-            
-            if (Array.isArray(items)) {
-                const validItems = items.filter(item => 
-                    availableIngredients.some(av => av.toLowerCase() === item.toLowerCase())
-                ).map(item => {
-                    return availableIngredients.find(av => av.toLowerCase() === item.toLowerCase());
-                });
-
+            if (Array.isArray(validItems)) {
                 setDetectedItems(validItems);
                 if (validItems.length === 0) {
                     setError("Görseldeki malzemeler bizim listemizdekilerle eşleştirilemedi. Lütfen daha yakından veya daha iyi bir ışıkla tekrar deneyin.");
@@ -148,7 +103,7 @@ export default function CameraScanner({ show, onClose, onScanSuccess, availableI
             }
         } catch (err) {
             console.error("Gemini Scan Error:", err);
-            setError(err.message || "Görsel taranırken bir hata oluştu. Lütfen internetinizi veya API anahtarınızı kontrol edin.");
+            setError(err.message || "Görsel taranırken bir hata oluştu. Lütfen internetinizi kontrol edin.");
         } finally {
             setLoading(false);
         }
