@@ -58,21 +58,20 @@ export default function RecipeCard({ meal, index = 0 }) {
                                     Kişisel Tarif
                                 </span>
                             )}
-                            {/* Average Rating Badge */}
+                        </div>
+                        <h3
+                            className="text-base font-semibold leading-tight flex items-center gap-1.5 flex-wrap"
+                            style={{ color: 'var(--text-primary)' }}
+                        >
+                            <span>{meal.name}</span>
                             {!meal.isPersonal && averageRating > 0 && (
-                                <div className="flex items-center gap-1">
-                                    <StarRating value={averageRating} readOnly size={12} />
+                                <span className="inline-flex items-center gap-0.5 text-xs font-normal text-amber-500 ml-1">
+                                    ⭐ {averageRating.toFixed(1)}
                                     <span className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>
                                         ({comments?.length || 0})
                                     </span>
-                                </div>
+                                </span>
                             )}
-                        </div>
-                        <h3
-                            className="text-base font-semibold leading-tight"
-                            style={{ color: 'var(--text-primary)' }}
-                        >
-                            {meal.name}
                         </h3>
                     </div>
 

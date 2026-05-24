@@ -58,12 +58,8 @@ export default function CommentSection({ mealId, mealName, initialComments, init
         e.preventDefault();
         setError('');
 
-        if (!text.trim()) {
-            setError('Yorum yazmadan gönderemezsiniz!');
-            return;
-        }
         if (rating === 0) {
-            setError('Lütfen bir puan verin.');
+            setError('Lütfen bir değerlendirme puanı (yıldız) seçin.');
             return;
         }
 
@@ -243,9 +239,11 @@ export default function CommentSection({ mealId, mealName, initialComments, init
                                         </span>
                                         <StarRating value={comment.rating} readOnly size={12} />
                                     </div>
-                                    <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                                        {comment.text}
-                                    </p>
+                                    {comment.text && (
+                                        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
+                                            {comment.text}
+                                        </p>
+                                    )}
                                     
                                     {/* Render Comment Image */}
                                     {comment.imageUrl && (

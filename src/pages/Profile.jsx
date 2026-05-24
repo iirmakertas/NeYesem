@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase/config';
 import { doc, updateDoc } from 'firebase/firestore';
 import { reauthenticateWithCredential, EmailAuthProvider, updatePassword } from 'firebase/auth';
-import { FiArrowLeft, FiCheck, FiUser } from 'react-icons/fi';
+import { FiArrowLeft, FiCheck, FiUser, FiLogOut } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 
 const animalIcons = [
@@ -32,6 +32,17 @@ export default function Profile() {
     const [passwordUpdating, setPasswordUpdating] = useState(false);
     const [passwordMessage, setPasswordMessage] = useState('');
     const [passwordSuccess, setPasswordSuccess] = useState(false);
+
+    const { logout } = useAuth();
+    const handleLogout = async () => {
+        if (window.confirm('Çıkış yapmak istediğinizden emin misiniz?')) {
+            try {
+                await logout();
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+    };
 
     useEffect(() => {
         if (userData?.photoURL) {
@@ -327,6 +338,19 @@ export default function Profile() {
                         </button>
                     </form>
                 </div>
+
+                {/* Logout Button */}
+                <button
+                    onClick={handleLogout}
+                    className="w-full mt-6 py-4 rounded-2xl text-sm font-bold text-white border-0 cursor-pointer transition-all duration-200 flex items-center justify-center gap-2"
+                    style={{
+                        backgroundColor: '#dc2626',
+                        boxShadow: '0 6px 20px rgba(220, 38, 38, 0.2)',
+                    }}
+                >
+                    <FiLogOut size={18} />
+                    Çıkış Yap
+                </button>
             </div>
         </div>
     );
