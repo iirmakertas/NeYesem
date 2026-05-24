@@ -119,7 +119,7 @@ export default function Profile() {
     };
 
     return (
-        <div className="min-h-screen px-4 py-6 md:py-10" style={{ backgroundColor: 'var(--bg-main)' }}>
+        <div className="min-h-screen px-4 pt-6 pb-28 md:py-10" style={{ backgroundColor: 'var(--bg-main)' }}>
             <div className="max-w-md mx-auto">
                 {/* Header */}
                 <div className="flex items-center gap-3 mb-8 animate-fade-in">
