@@ -15,8 +15,13 @@ import { db, storage } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 
 // Helper to compress review images using HTML5 Canvas
-const compressImage = (file, maxWidth = 800, maxHeight = 800, quality = 0.7) => {
+export const compressImage = (file, maxWidth = 600, maxHeight = 600, quality = 0.6) => {
     return new Promise((resolve, reject) => {
+        // If file is already very small (e.g. < 40KB), don't compress
+        if (file.size < 40 * 1024) {
+            resolve(file);
+            return;
+        }
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = (event) => {

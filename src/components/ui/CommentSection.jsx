@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { useComments } from '../../hooks/useComments';
+import { useComments, compressImage } from '../../hooks/useComments';
 import { useAuth } from '../../context/AuthContext';
 import StarRating from './StarRating';
 import { FiSend, FiTrash2, FiMessageCircle, FiImage, FiX } from 'react-icons/fi';
@@ -16,11 +16,12 @@ export default function CommentSection({ mealId, mealName, initialComments, init
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [submitting, setSubmitting] = useState(false);
+    const [isCompressing, setIsCompressing] = useState(false);
     const [error, setError] = useState('');
     const [selectedLightboxImage, setSelectedLightboxImage] = useState(null);
     const fileInputRef = useRef(null);
 
-    const handleImageChange = (e) => {
+    const handleImageChange = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
@@ -37,13 +38,25 @@ export default function CommentSection({ mealId, mealName, initialComments, init
         }
 
         setError('');
-        setImageFile(file);
-
+        
+        // Show preview instantly
         const reader = new FileReader();
         reader.onloadend = () => {
             setImagePreview(reader.result);
         };
         reader.readAsDataURL(file);
+
+        // Start background compression
+        setIsCompressing(true);
+        try {
+            const compressed = await compressImage(file);
+            setImageFile(compressed);
+        } catch (err) {
+            console.warn('Background image compression failed, using original:', err);
+            setImageFile(file);
+        } finally {
+            setIsCompressing(false);
+        }
     };
 
     const handleRemoveImage = () => {
@@ -60,6 +73,11 @@ export default function CommentSection({ mealId, mealName, initialComments, init
 
         if (rating === 0) {
             setError('Lütfen bir değerlendirme puanı (yıldız) seçin.');
+            return;
+        }
+
+        if (isCompressing) {
+            setError('Görsel optimize ediliyor, lütfen bir saniye bekleyin...');
             return;
         }
 
@@ -164,14 +182,14 @@ export default function CommentSection({ mealId, mealName, initialComments, init
 
                         <button
                             type="submit"
-                            disabled={submitting}
+                            disabled={submitting || isCompressing}
                             className="flex items-center justify-center w-10 h-10 rounded-xl border-0 cursor-pointer transition-all duration-200"
                             style={{
-                                backgroundColor: submitting ? 'var(--text-tertiary)' : 'var(--color-primary)',
+                                backgroundColor: (submitting || isCompressing) ? 'var(--text-tertiary)' : 'var(--color-primary)',
                                 color: 'white',
                             }}
                         >
-                            {submitting ? (
+                            {submitting || isCompressing ? (
                                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             ) : (
                                 <FiSend size={16} />

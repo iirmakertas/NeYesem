@@ -5,6 +5,7 @@ exports.scanIngredients = onCall({
   secrets: ["GEMINI_API_KEY"],
   cors: true
 }, async (request) => {
+  console.log("scanIngredients request received");
   // Ensure the user sent the required data
   const data = request.data || {};
   const { image, availableIngredients } = data;
