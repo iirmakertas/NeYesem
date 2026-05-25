@@ -8,4 +8,4 @@ Disallow: /favoriler
 Disallow: /tarif-defterim
 Disallow: /profile
 
-Sitemap: https://neyesem.app/sitemap.xml
+Sitemap: https://neyesemtarifasistani.com.tr/sitemap.xml
