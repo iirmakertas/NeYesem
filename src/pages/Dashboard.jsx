@@ -44,7 +44,7 @@ export default function Dashboard() {
     ];
 
     return (
-        <div className="min-h-screen px-4 py-8 md:py-12" style={{ backgroundColor: 'var(--bg-main)' }}>
+        <div className="min-h-screen px-4 pt-8 pb-28 md:py-12" style={{ backgroundColor: 'var(--bg-main)' }}>
             <div className="max-w-2xl mx-auto">
                 {/* Welcome Section */}
                 <div className="text-center mb-10 animate-fade-in">

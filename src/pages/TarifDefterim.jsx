@@ -449,7 +449,7 @@ export default function TarifDefterim() {
     const usedCategories = ['Tümü', ...new Set(recipes.map(r => r.category))];
 
     return (
-        <div className="min-h-screen px-4 py-6 md:py-10" style={{ backgroundColor: 'var(--bg-main)' }}>
+        <div className="min-h-screen px-4 pt-6 pb-28 md:py-10" style={{ backgroundColor: 'var(--bg-main)' }}>
             <div className="max-w-2xl mx-auto">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6 animate-fade-in">
