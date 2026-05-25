@@ -152,8 +152,12 @@ export default function Register() {
         >
             <div className="w-full max-w-md animate-scale-in">
                 {/* Logo */}
-                <div className="text-center mb-8">
-                    <div className="text-6xl mb-3 animate-float">🍽️</div>
+                <div className="text-center mb-8 flex flex-col items-center">
+                    <img
+                        src="/app_logo.png"
+                        alt="Logo"
+                        className="w-20 h-20 mb-3 animate-float rounded-2xl object-contain"
+                    />
                     <h1
                         className="text-3xl font-bold mb-1"
                         style={{ color: 'var(--color-primary)' }}
