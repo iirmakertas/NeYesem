@@ -432,10 +432,15 @@ export default function Login() {
                     {/* Logo */}
                     <div className="text-center mb-8 flex flex-col items-center">
                         <img
-                            src="/app_logo.png"
-                            alt="Logo"
+                            src="/android-chrome-192x192.png"
+                            alt="Ne Yesem Logo"
                             className="w-20 h-20 mb-3 animate-float rounded-2xl object-contain"
+                            onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'block';
+                            }}
                         />
+                        <span className="text-6xl mb-3 animate-float" style={{ display: 'none' }}>🍽️</span>
                         <h1
                             className="text-3xl font-bold mb-1"
                             style={{ color: 'var(--color-primary)' }}
