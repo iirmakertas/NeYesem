@@ -1,0 +1,11 @@
+# https://www.robotstxt.org/robotstxt.html
+
+User-agent: *
+Disallow: /dashboard
+Disallow: /zar-at
+Disallow: /ne-var
+Disallow: /favoriler
+Disallow: /tarif-defterim
+Disallow: /profile
+
+Sitemap: https://neyesem.app/sitemap.xml
