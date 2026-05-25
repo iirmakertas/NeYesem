@@ -5,8 +5,10 @@ const ThemeContext = createContext();
 export function ThemeProvider({ children }) {
     const [isDark, setIsDark] = useState(() => {
         const saved = localStorage.getItem('ne-yesem-theme');
+        // If user has explicitly chosen a theme before, respect it.
+        // Otherwise always default to dark so Android phones don't open in light mode.
         if (saved !== null) return saved === 'dark';
-        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+        return true; // default: dark on all devices
     });
 
     useEffect(() => {

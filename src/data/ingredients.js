@@ -1,6 +1,6 @@
 export const ingredientCategories = [
     {
-        name: 'Et & Tavuk',
+        name: 'Et ve Tavuk',
         emoji: '🥩',
         items: [
             'Kıyma', 'Tavuk Göğsü', 'Tavuk But', 'Dana Eti', 'Kuzu Eti', 
@@ -57,7 +57,7 @@ export const ingredientCategories = [
         ]
     },
     {
-        name: 'Yumurta & Temel',
+        name: 'Yumurta ve Temel',
         emoji: '🥚',
         items: [
             'Yumurta', 'Un', 'Şeker', 'Tuz', 'Ekmek', 
@@ -68,7 +68,7 @@ export const ingredientCategories = [
         ]
     },
     {
-        name: 'Yağ & Sos',
+        name: 'Yağ ve Sos',
         emoji: '🫒',
         items: [
             'Zeytinyağı', 'Ayçiçek Yağı', 'Sıvı Yağ', 'Salça', 'Domates Salçası', 
@@ -98,7 +98,7 @@ export const ingredientCategories = [
         ]
     },
     {
-        name: 'İçecek & Diğer',
+        name: 'İçecek ve Diğer',
         emoji: '☕',
         items: [
             'Çay', 'Kahve', 'Bal', 'Pekmez', 'Reçel', 
