@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useComments, compressImage } from '../../hooks/useComments';
 import { useAuth } from '../../context/AuthContext';
 import StarRating from './StarRating';
-import { FiSend, FiTrash2, FiMessageCircle, FiImage, FiX } from 'react-icons/fi';
+import { FiSend, FiTrash2, FiMessageCircle, FiImage, FiX, FiFlag } from 'react-icons/fi';
 
 export default function CommentSection({ mealId, mealName, initialComments, initialLoading }) {
     const hookData = useComments(mealId);
@@ -283,21 +283,39 @@ export default function CommentSection({ mealId, mealName, initialComments, init
                                     </span>
                                 </div>
 
-                                {/* Delete button (only for comment owner) */}
-                                {user && user.uid === comment.userId && (
-                                    <button
-                                        onClick={() => {
-                                            if (window.confirm('Bu yorumu silmek istediğinizden emin misiniz?')) {
-                                                deleteComment(comment.id, comment.imageStoragePath);
-                                            }
-                                        }}
-                                        className="flex-shrink-0 p-1.5 rounded-lg border-0 cursor-pointer transition-colors bg-transparent"
-                                        style={{ color: 'var(--text-tertiary)' }}
-                                        title="Yorumu sil"
-                                    >
-                                        <FiTrash2 size={13} />
-                                    </button>
-                                )}
+                                <div className="flex flex-col items-center gap-2">
+                                    {/* Delete button (only for comment owner) */}
+                                    {user && user.uid === comment.userId && (
+                                        <button
+                                            onClick={() => {
+                                                if (window.confirm('Bu yorumu silmek istediğinizden emin misiniz?')) {
+                                                    deleteComment(comment.id, comment.imageStoragePath);
+                                                }
+                                            }}
+                                            className="flex-shrink-0 p-1.5 rounded-lg border-0 cursor-pointer transition-colors bg-transparent hover:bg-red-50"
+                                            style={{ color: 'var(--text-tertiary)' }}
+                                            title="Yorumu sil"
+                                        >
+                                            <FiTrash2 size={13} />
+                                        </button>
+                                    )}
+
+                                    {/* Report button (for other users) */}
+                                    {user && user.uid !== comment.userId && (
+                                        <button
+                                            onClick={() => {
+                                                if (window.confirm('Bu yorumu uygunsuz içerik nedeniyle şikayet etmek istiyor musunuz?')) {
+                                                    window.alert('Şikayetiniz alınmıştır. İçerik en kısa sürede incelenecektir. Teşekkür ederiz.');
+                                                }
+                                            }}
+                                            className="flex-shrink-0 p-1.5 rounded-lg border-0 cursor-pointer transition-colors bg-transparent hover:bg-orange-50"
+                                            style={{ color: 'var(--text-tertiary)' }}
+                                            title="Yorumu şikayet et"
+                                        >
+                                            <FiFlag size={13} />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     ))}

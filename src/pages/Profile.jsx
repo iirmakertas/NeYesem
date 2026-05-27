@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { db } from '../firebase/config';
-import { doc, updateDoc } from 'firebase/firestore';
-import { reauthenticateWithCredential, EmailAuthProvider, updatePassword } from 'firebase/auth';
+import { doc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { reauthenticateWithCredential, EmailAuthProvider, updatePassword, deleteUser } from 'firebase/auth';
 import { FiArrowLeft, FiCheck, FiUser, FiLogOut } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 
@@ -40,6 +40,36 @@ export default function Profile() {
                 await logout();
             } catch (error) {
                 console.error('Logout error:', error);
+            }
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        if (!user) return;
+        const confirmDelete = window.confirm('Hesabınızı ve tüm verilerinizi kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.');
+        if (!confirmDelete) return;
+
+        // Optionally, ask for password if required by Firebase Auth for sensitive operations
+        const passwordPrompt = window.prompt('Güvenliğiniz için lütfen mevcut şifrenizi girin:');
+        if (!passwordPrompt) return;
+
+        try {
+            const credential = EmailAuthProvider.credential(user.email, passwordPrompt);
+            await reauthenticateWithCredential(user, credential);
+
+            // Delete user document from Firestore
+            await deleteDoc(doc(db, 'users', user.uid));
+            
+            // Delete user auth account
+            await deleteUser(user);
+            
+            window.alert('Hesabınız başarıyla silindi.');
+        } catch (error) {
+            console.error('Error deleting account:', error);
+            if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
+                window.alert('Şifrenizi yanlış girdiniz. Lütfen tekrar deneyin.');
+            } else {
+                window.alert('Hesabınız silinirken bir hata oluştu: ' + error.message);
             }
         }
     };
@@ -350,6 +380,17 @@ export default function Profile() {
                 >
                     <FiLogOut size={18} />
                     Çıkış Yap
+                </button>
+
+                {/* Delete Account Button */}
+                <button
+                    onClick={handleDeleteAccount}
+                    className="w-full mt-4 py-4 rounded-2xl text-sm font-bold text-red-500 border-2 cursor-pointer transition-all duration-200 flex items-center justify-center gap-2 bg-transparent"
+                    style={{
+                        borderColor: '#fca5a5',
+                    }}
+                >
+                    Hesabımı Sil
                 </button>
             </div>
         </div>
