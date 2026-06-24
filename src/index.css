@@ -88,11 +88,8 @@
     min-height: 100dvh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Ensure proper Turkish character rendering on all devices */
     text-rendering: optimizeLegibility;
     font-feature-settings: 'kern' 1;
-    /* Safe area for notch/dynamic island */
-    padding-top: env(safe-area-inset-top);
   }
 
   ::selection {
@@ -389,6 +386,24 @@
 
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+/*
+ * Mobile-only: Push page content below the transparent status bar.
+ * Applies on screens where the top navbar is NOT shown (< md breakpoint).
+ * The md: breakpoint already handles desktops via the fixed top navbar.
+ */
+@media (max-width: 767px) {
+  /* Add safe area top padding to page containers while preserving their original padding */
+  .min-h-screen.pt-8 {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 2rem) !important;
+  }
+  .min-h-screen.pt-6 {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 1.5rem) !important;
+  }
+  .min-h-screen.py-8 {
+    padding-top: calc(env(safe-area-inset-top, 0px) + 2rem) !important;
+  }
 }
 
 /* ===== Floating Theme Toggle ===== */

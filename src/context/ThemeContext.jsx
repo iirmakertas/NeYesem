@@ -19,6 +19,12 @@ export function ThemeProvider({ children }) {
             root.classList.remove('dark');
         }
         localStorage.setItem('ne-yesem-theme', isDark ? 'dark' : 'light');
+
+        // Dynamically update theme-color meta tag for mobile status bar coloring
+        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+        if (metaThemeColor) {
+            metaThemeColor.setAttribute('content', isDark ? '#0f1117' : '#fefefe');
+        }
     }, [isDark]);
 
     const toggleTheme = () => setIsDark(prev => !prev);
