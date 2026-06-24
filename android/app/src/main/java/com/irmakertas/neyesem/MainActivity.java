@@ -1,4 +1,4 @@
-package com.iirmakertas.neyesem;
+package com.irmakertas.neyesem;
 
 import com.getcapacitor.BridgeActivity;
 

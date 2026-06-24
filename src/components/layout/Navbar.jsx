@@ -1,7 +1,6 @@
-import { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import ThemeToggle from './ThemeToggle';
 import { FiHome, FiLogOut } from 'react-icons/fi';
 import { GiRollingDices } from 'react-icons/gi';
 import { MdFavorite, MdKitchen, MdMenuBook } from 'react-icons/md';
@@ -42,6 +41,7 @@ export default function Navbar() {
                 style={{
                     backgroundColor: 'var(--bg-nav)',
                     borderColor: 'var(--border-color)',
+                    paddingTop: 'env(safe-area-inset-top)',
                 }}
             >
                 <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -94,7 +94,6 @@ export default function Navbar() {
                             </span>
                         </Link>
                         
-                        <ThemeToggle />
                         <button
                             onClick={handleLogout}
                             className="touch-target tap-highlight-none flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 cursor-pointer border-0"
@@ -110,22 +109,26 @@ export default function Navbar() {
                 </div>
             </nav>
 
-            {/* Mobile Bottom Tab Bar */}
+            {/* Mobile Bottom Tab Bar — sticky, never covered by keyboard */}
             <nav
                 className="glass-strong fixed bottom-0 left-0 right-0 z-50 md:hidden border-t"
                 style={{
                     backgroundColor: 'var(--bg-nav)',
                     borderColor: 'var(--border-color)',
+                    /* Safe area for home bar on iPhone */
+                    paddingBottom: 'env(safe-area-inset-bottom)',
                 }}
             >
-                <div className="flex items-center justify-around px-2 py-1 pb-[max(0.25rem,env(safe-area-inset-bottom))]">
+                <div className="flex items-center justify-around px-1 pt-1 pb-1">
                     {navItems.map((item) => (
                         <Link
                             key={item.path}
                             to={item.path}
-                            className="touch-target tap-highlight-none flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl no-underline transition-all duration-200"
+                            className="tap-highlight-none flex flex-col items-center justify-center gap-0.5 py-1 px-2 rounded-xl no-underline transition-all duration-200"
                             style={{
                                 color: isActive(item.path) ? 'var(--color-primary)' : 'var(--text-tertiary)',
+                                flex: 1,
+                                minWidth: 0,
                             }}
                         >
                             <div
@@ -137,14 +140,16 @@ export default function Navbar() {
                             >
                                 {item.icon}
                             </div>
-                            <span className="text-[10px] font-medium">{item.label}</span>
+                            <span className="text-[9px] font-medium leading-tight text-center w-full truncate">{item.label}</span>
                         </Link>
                     ))}
                     <Link
                         to="/profile"
-                        className="touch-target tap-highlight-none flex flex-col items-center justify-center gap-0.5 py-1 px-3 rounded-xl no-underline transition-all duration-200"
+                        className="tap-highlight-none flex flex-col items-center justify-center gap-0.5 py-1 px-2 rounded-xl no-underline transition-all duration-200"
                         style={{
                             color: isActive('/profile') ? 'var(--color-primary)' : 'var(--text-tertiary)',
+                            flex: 1,
+                            minWidth: 0,
                         }}
                     >
                         <div
@@ -156,18 +161,15 @@ export default function Navbar() {
                         >
                             <span className="text-base">{userData?.photoURL || '👤'}</span>
                         </div>
-                        <span className="text-[10px] font-medium">Profil</span>
+                        <span className="text-[9px] font-medium leading-tight">Profil</span>
                     </Link>
-                    <div className="flex flex-col items-center gap-0.5">
-                        <ThemeToggle />
-                    </div>
                 </div>
             </nav>
 
-            {/* Top spacer for desktop */}
-            <div className="hidden md:block h-16" />
+            {/* Top spacer for desktop (accounts for safe area too) */}
+            <div className="hidden md:block" style={{ height: 'calc(4rem + env(safe-area-inset-top))' }} />
             {/* Bottom spacer for mobile */}
-            <div className="md:hidden h-20" />
+            <div className="md:hidden" style={{ height: 'calc(3.5rem + env(safe-area-inset-bottom))' }} />
         </>
     );
 }

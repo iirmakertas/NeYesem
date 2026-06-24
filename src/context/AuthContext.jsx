@@ -129,7 +129,12 @@ export function AuthProvider({ children }) {
             uid: result.user.uid
         });
 
-        await sendEmailVerification(result.user);
+        // Send verification email with actionCodeSettings so it lands in inbox, not spam
+        const actionCodeSettings = {
+            url: 'https://neyesem-8e029.firebaseapp.com/login',
+            handleCodeInApp: false,
+        };
+        await sendEmailVerification(result.user, actionCodeSettings);
         return result;
     };
 
@@ -144,7 +149,11 @@ export function AuthProvider({ children }) {
 
     const resendVerification = async () => {
         if (auth.currentUser) {
-            await sendEmailVerification(auth.currentUser);
+            const actionCodeSettings = {
+                url: 'https://neyesem-8e029.firebaseapp.com/login',
+                handleCodeInApp: false,
+            };
+            await sendEmailVerification(auth.currentUser, actionCodeSettings);
         }
     };
 

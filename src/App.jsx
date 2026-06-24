@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { Suspense, lazy } from 'react';
 
 import Navbar from './components/layout/Navbar';
+import FloatingThemeToggle from './components/layout/FloatingThemeToggle';
 import ErrorBoundary from './components/utils/ErrorBoundary';
 
 // ─── Lazy-load all pages (code splitting) ───
@@ -62,10 +63,13 @@ function FadeTransition({ children }) {
 
 function AppContent() {
   const location = useLocation();
+  const { user } = useAuth();
 
   return (
     <>
       <Navbar />
+      {/* Floating dark/light toggle — only shown when logged in */}
+      {user && user.emailVerified && <FloatingThemeToggle />}
       <Suspense fallback={<PageLoader />}>
         <FadeTransition>
           <Routes location={location}>

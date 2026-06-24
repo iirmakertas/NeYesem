@@ -130,7 +130,9 @@ export default function Register() {
                             className="text-sm mb-6"
                             style={{ color: 'var(--text-secondary)' }}
                         >
-                            <><strong>{email}</strong> adresine bir doğrulama e-postası gönderdik. Lütfen gelen kutunuzu (ve spam klasörünü) kontrol edin ve hesabınızı doğrulayın.</>
+                            <><strong>{email}</strong> adresine bir doğrulama e-postası gönderdik. Lütfen gelen kutunuzu kontrol edin ve hesabınızı doğrulayın. 
+                            E-posta birkaç dakika içinde gelecektir.⇣
+                            </>
                         </p>
                         <Link
                             to="/login"

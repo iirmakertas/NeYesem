@@ -133,7 +133,7 @@ export default function CommentSection({ mealId, mealName, initialComments, init
 
             {/* Comment Form */}
             {user && (
-                <form onSubmit={handleSubmit} className="mb-4 space-y-3">
+                <form onSubmit={handleSubmit} className="mb-4 space-y-2">
                     <div className="flex items-center gap-2">
                         <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
                             Puanınız:
@@ -141,22 +141,24 @@ export default function CommentSection({ mealId, mealName, initialComments, init
                         <StarRating value={rating} onChange={setRating} size={18} />
                     </div>
 
-                    <div className="flex gap-2 items-center">
-                        <input
-                            type="text"
-                            value={text}
-                            onChange={(e) => setText(e.target.value)}
-                            placeholder="Tarif hakkında ne düşünüyorsunuz?"
-                            className="flex-1 px-3 py-2.5 rounded-xl border outline-none text-sm transition-all duration-200"
-                            style={{
-                                backgroundColor: 'var(--bg-input)',
-                                borderColor: 'var(--border-color)',
-                                color: 'var(--text-primary)',
-                            }}
-                            onFocus={(e) => e.target.style.borderColor = 'var(--color-primary)'}
-                            onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
-                        />
-                        
+                    {/* Text input - full width */}
+                    <input
+                        type="text"
+                        value={text}
+                        onChange={(e) => setText(e.target.value)}
+                        placeholder="Tarif hakkında ne düşünüyorsunuz?"
+                        className="w-full px-3 py-2.5 rounded-xl border outline-none text-sm transition-all duration-200"
+                        style={{
+                            backgroundColor: 'var(--bg-input)',
+                            borderColor: 'var(--border-color)',
+                            color: 'var(--text-primary)',
+                        }}
+                        onFocus={(e) => e.target.style.borderColor = 'var(--color-primary)'}
+                        onBlur={(e) => e.target.style.borderColor = 'var(--border-color)'}
+                    />
+
+                    {/* Buttons row */}
+                    <div className="flex items-center gap-2">
                         {/* Hidden File Input */}
                         <input
                             type="file"
@@ -165,41 +167,51 @@ export default function CommentSection({ mealId, mealName, initialComments, init
                             ref={fileInputRef}
                             className="hidden"
                         />
-                        
+
                         {/* Image Select Button */}
                         <button
                             type="button"
                             onClick={() => fileInputRef.current?.click()}
-                            className="flex items-center justify-center w-10 h-10 rounded-xl border cursor-pointer transition-all duration-200 bg-transparent"
+                            className="flex items-center justify-center rounded-xl border cursor-pointer transition-all duration-200 bg-transparent flex-shrink-0"
                             style={{
                                 borderColor: imageFile ? 'var(--color-primary)' : 'var(--border-color)',
                                 color: imageFile ? 'var(--color-primary)' : 'var(--text-secondary)',
+                                minWidth: 44,
+                                minHeight: 44,
+                                width: 44,
+                                height: 44,
                             }}
                             title="Fotoğraf Ekle"
                         >
                             <FiImage size={18} />
                         </button>
 
+                        {/* Send Button - takes remaining space */}
                         <button
                             type="submit"
                             disabled={submitting || isCompressing}
-                            className="flex items-center justify-center w-10 h-10 rounded-xl border-0 cursor-pointer transition-all duration-200"
+                            className="flex items-center justify-center gap-2 flex-1 rounded-xl border-0 cursor-pointer transition-all duration-200 text-sm font-semibold"
                             style={{
                                 backgroundColor: (submitting || isCompressing) ? 'var(--text-tertiary)' : 'var(--color-primary)',
                                 color: 'white',
+                                minHeight: 44,
+                                height: 44,
                             }}
                         >
                             {submitting || isCompressing ? (
                                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                             ) : (
-                                <FiSend size={16} />
+                                <>
+                                    <FiSend size={16} />
+                                    <span>Gönder</span>
+                                </>
                             )}
                         </button>
                     </div>
 
                     {/* Image Preview Container */}
                     {imagePreview && (
-                        <div className="relative inline-block mt-2 animate-scale-in">
+                        <div className="relative inline-block mt-1 animate-scale-in">
                             <img
                                 src={imagePreview}
                                 alt="Seçilen Görsel Önizleme"
