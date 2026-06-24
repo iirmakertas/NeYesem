@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
+import { StatusBar, Style } from '@capacitor/status-bar';
 
 const ThemeContext = createContext();
 
@@ -25,6 +26,21 @@ export function ThemeProvider({ children }) {
         if (metaThemeColor) {
             metaThemeColor.setAttribute('content', isDark ? '#0f1117' : '#fefefe');
         }
+
+        // Dynamically update native mobile status bar style
+        const updateNativeStatusBar = async () => {
+            try {
+                await StatusBar.setStyle({
+                    style: isDark ? Style.Dark : Style.Light
+                });
+                await StatusBar.setBackgroundColor({
+                    color: isDark ? '#0f1117' : '#fefefe'
+                });
+            } catch (e) {
+                // Ignore if not running in a Capacitor native container
+            }
+        };
+        updateNativeStatusBar();
     }, [isDark]);
 
     const toggleTheme = () => setIsDark(prev => !prev);
