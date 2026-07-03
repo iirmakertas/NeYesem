@@ -1,5 +1,9 @@
 {
   "appId": "com.irmakertas.neyesem",
   "appName": "NeYesem",
-  "webDir": "dist"
+  "webDir": "dist",
+  "server": {
+    "url": "https://neyesem-8e029.web.app",
+    "cleartext": false
+  }
 }
